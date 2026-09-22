@@ -12,7 +12,7 @@ Peek Pro is a **$5.99 lifetime purchase**: unlimited Peek Stack, searchable loca
 
 ## Status
 
-The complete v0.1 implementation is in this repository. Before packaging a sellable build, replace the explicit placeholders in `src/config.ts`, `manifest.config.ts`, and `worker/wrangler.jsonc` with the final Creem and Cloudflare values. Do not publish a build containing placeholders.
+The complete v0.1 implementation is in this repository. Before packaging a sellable build, replace the explicit placeholders in `src/config.ts` and `worker/wrangler.jsonc` with the final Creem and Cloudflare values. Do not publish a build containing placeholders.
 
 ## Stack
 

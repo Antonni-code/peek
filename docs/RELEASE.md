@@ -16,6 +16,7 @@ Publishing is intentionally manual. Building the repository does not deploy Clou
 ```bash
 npm ci
 npm run check
+npm run verify:local
 npx wrangler deploy --config worker/wrangler.jsonc --dry-run --outdir dist
 ```
 
@@ -23,12 +24,18 @@ Then verify:
 
 - `dist/manifest.json` uses Manifest V3 and the intended permissions only;
 - `dist` contains no source maps, `.env`, `.dev.vars`, private key, API key, test fixture, or placeholder;
-- popup, options, content script, service worker, icons, and exact Worker host are present;
+- popup, options, content script, service worker, and icons are present;
 - the unpacked build completes the manual matrix in `TESTING.md`.
 
 ## Package
 
-Create the store ZIP from the **contents** of `dist`, not from a parent folder. The ZIP root must contain `manifest.json`.
+After production values are configured, run:
+
+```bash
+npm run package:extension
+```
+
+This performs a clean build, refuses placeholders, checks the manifest and bundle contents, and writes `releases/peek-v<version>.zip`. The ZIP root contains `manifest.json`.
 
 ## Cloudflare first, extension second
 

@@ -4,6 +4,8 @@ import { PeekSurface } from "./peek-surface";
 import { readStorage } from "../platform/storage";
 import { isContentRequest } from "../core/messages";
 import { DEFAULT_SETTINGS } from "../core/defaults";
+import { deriveEntitlement } from "../core/entitlement";
+import { PEEK_CONFIG } from "../config";
 
 const ROOT_ATTRIBUTE = "data-peek-extension";
 
@@ -19,7 +21,12 @@ async function bootstrap(): Promise<void> {
 
   let controller: PreviewController | null = null;
   let stackOpen = false;
-  const isPro = storage.license.status === "pro" || storage.license.status === "grace";
+  const entitlement = await deriveEntitlement(storage.license, {
+    productId: PEEK_CONFIG.creemProductId,
+    mode: PEEK_CONFIG.creemMode,
+    publicJwk: PEEK_CONFIG.receiptPublicJwk,
+  });
+  const isPro = entitlement === "pro" || entitlement === "grace";
   const effectiveSettings = isPro
     ? storage.settings
     : { ...DEFAULT_SETTINGS, enabled: storage.settings.enabled };
@@ -30,7 +37,7 @@ async function bootstrap(): Promise<void> {
       if (action.type === "open") void openTab(action.url, action.active);
       if (action.type === "copy") void copyUrl(action.url);
       if (action.type === "pin") {
-        void togglePinned(action.record).then((result) => {
+        void togglePinned(action.record, isPro).then((result) => {
           storage.pinned = result.records;
           surface.setPinned(result.pinned);
           if (stackOpen) surface.renderStack(storage.pinned, true);
@@ -66,7 +73,7 @@ async function bootstrap(): Promise<void> {
       if (state.status === "resolved") {
         surface.showResolution(state.anchor, state.result);
         surface.setPinned(storage.pinned.some((item) => state.result.status === "ready" && item.normalizedUrl === state.result.record.normalizedUrl));
-        if (state.result.status === "ready") void saveToHistory(state.result.record);
+        if (state.result.status === "ready") void saveToHistory(state.result.record, isPro);
       }
     },
   });

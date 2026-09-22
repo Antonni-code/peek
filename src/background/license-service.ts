@@ -1,10 +1,10 @@
 import { PEEK_CONFIG, isLicenseConfigured } from "../config";
 import { verifyReceipt } from "../core/receipt";
+import { deriveEntitlement } from "../core/entitlement";
 import type { LicenseState } from "../core/types";
 import { readStorage, updateStorage } from "../platform/storage";
 
 const REQUEST_TIMEOUT_MS = 8_000;
-const GRACE_MS = 4 * 24 * 60 * 60 * 1_000;
 
 interface LicenseApiSuccess {
   ok: true;
@@ -69,19 +69,16 @@ async function validateApiReceipt(data: LicenseApiSuccess["data"]): Promise<void
 }
 
 async function verifiedLocalStatus(license: LicenseState, now = Date.now()): Promise<"pro" | "grace" | "invalid"> {
-  if (!license.receipt || !PEEK_CONFIG.receiptPublicJwk) return "invalid";
-  try {
-    const payload = await verifyReceipt(
-      license.receipt,
-      PEEK_CONFIG.receiptPublicJwk,
-      { productId: PEEK_CONFIG.creemProductId, mode: PEEK_CONFIG.creemMode, allowExpired: true },
-    );
-    const expiresAt = payload.exp * 1_000;
-    if (now < expiresAt) return "pro";
-    return now < expiresAt + GRACE_MS ? "grace" : "invalid";
-  } catch {
-    return "invalid";
-  }
+  const status = await deriveEntitlement(
+    license,
+    {
+      productId: PEEK_CONFIG.creemProductId,
+      mode: PEEK_CONFIG.creemMode,
+      publicJwk: PEEK_CONFIG.receiptPublicJwk,
+    },
+    now,
+  );
+  return status === "pro" || status === "grace" ? status : "invalid";
 }
 
 export async function activateLicense(licenseKey: string): Promise<LicenseState> {

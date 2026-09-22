@@ -64,8 +64,6 @@ Edit `src/config.ts`:
 - `creemMode`: `test`;
 - `receiptPublicJwk`: the public JWK object, not a string.
 
-Edit `manifest.config.ts` and replace the placeholder Worker host permission with the exact deployed origin plus `/*`.
-
 Build and reload the unpacked extension:
 
 ```bash
@@ -83,7 +81,7 @@ Do not change only one value. Production requires a matched set:
 3. live product ID, checkout URL, and API key;
 4. `CREEM_MODE=prod` in Worker and extension;
 5. published Chrome Web Store extension ID in `ALLOWED_EXTENSION_IDS`;
-6. exact production Worker host in the manifest;
+6. exact production Worker URL in `src/config.ts`;
 7. production receipt public key in the extension and matching private key in Worker secrets.
 
 Use a separate production Worker or a named Wrangler environment so Test secrets and counters cannot mix with Production. Cloudflare environment bindings and secrets are not inherited automatically.

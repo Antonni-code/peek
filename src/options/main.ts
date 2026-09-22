@@ -7,20 +7,28 @@ import type { PeekSettings, PeekStorage, PreviewRecord } from "../core/types";
 import { readStorage, updateStorage } from "../platform/storage";
 import { isLicenseConfigured, PEEK_CONFIG } from "../config";
 import type { RuntimeResponse } from "../core/messages";
+import { deriveEntitlement, type EffectiveEntitlement } from "../core/entitlement";
 
 let state: PeekStorage;
 let toastTimer: number | null = null;
+let entitlement: EffectiveEntitlement = "free";
 
 void initialize();
 
 async function initialize(): Promise<void> {
   state = await readStorage();
+  entitlement = await deriveEntitlement(state.license, {
+    productId: PEEK_CONFIG.creemProductId,
+    mode: PEEK_CONFIG.creemMode,
+    publicJwk: PEEK_CONFIG.receiptPublicJwk,
+  });
+  state = { ...state, license: { ...state.license, status: entitlement } };
   bindControls();
   render();
 }
 
 function isPro(): boolean {
-  return state.license.status === "pro" || state.license.status === "grace";
+  return entitlement === "pro" || entitlement === "grace";
 }
 
 function bindControls(): void {
@@ -104,6 +112,12 @@ async function runLicenseAction(action: "activate" | "validate" | "deactivate"):
     if (!response.ok) throw new Error(response.error.message);
     if (!("license" in response.data)) throw new Error("License service returned an invalid result.");
     state = { ...state, license: response.data.license };
+    entitlement = await deriveEntitlement(state.license, {
+      productId: PEEK_CONFIG.creemProductId,
+      mode: PEEK_CONFIG.creemMode,
+      publicJwk: PEEK_CONFIG.receiptPublicJwk,
+    });
+    state = { ...state, license: { ...state.license, status: entitlement } };
     input<HTMLInputElement>("license-key").value = "";
     render();
     showToast(action === "deactivate" ? "License deactivated" : "License verified");

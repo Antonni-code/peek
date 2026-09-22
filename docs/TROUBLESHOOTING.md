@@ -18,7 +18,7 @@ The active tab may be a protected browser page or may not have reloaded since in
 
 ## License says not configured
 
-Replace every placeholder in `src/config.ts`, `manifest.config.ts`, and `worker/wrangler.jsonc`, configure Worker secrets, deploy, then rebuild the extension.
+Replace every placeholder in `src/config.ts` and `worker/wrangler.jsonc`, configure Worker secrets, deploy, then rebuild the extension.
 
 ## Activation rejects a real key
 
@@ -28,7 +28,7 @@ Check the complete matched set:
 - Production key + Production product + Production API key + `prod` mode;
 - exact product ID in both Worker and extension;
 - current unpacked or published extension ID in `ALLOWED_EXTENSION_IDS`;
-- exact Worker URL in config and manifest host permission;
+- exact Worker URL in `src/config.ts`;
 - matching receipt public/private JWK pair.
 
 Unpacked and Chrome Web Store builds usually have different extension IDs. This was a source of failure in Later and must be handled explicitly for Peek.

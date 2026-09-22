@@ -2,6 +2,8 @@ import "../styles/surface.css";
 
 import type { RuntimeRequest } from "../core/messages";
 import { readStorage } from "../platform/storage";
+import { deriveEntitlement } from "../core/entitlement";
+import { PEEK_CONFIG } from "../config";
 
 document.querySelector<HTMLButtonElement>("#open-options")?.addEventListener("click", () => {
   void chrome.runtime.openOptionsPage();
@@ -15,8 +17,13 @@ async function toggleStack(): Promise<void> {
   window.close();
 }
 
-void readStorage().then((storage) => {
-  const pro = storage.license.status === "pro" || storage.license.status === "grace";
+void readStorage().then(async (storage) => {
+  const entitlement = await deriveEntitlement(storage.license, {
+    productId: PEEK_CONFIG.creemProductId,
+    mode: PEEK_CONFIG.creemMode,
+    publicJwk: PEEK_CONFIG.receiptPublicJwk,
+  });
+  const pro = entitlement === "pro" || entitlement === "grace";
   const plan = document.querySelector("#mini-plan");
   if (plan) plan.textContent = pro ? "Pro" : "Free";
   const status = document.querySelector("#status-copy");

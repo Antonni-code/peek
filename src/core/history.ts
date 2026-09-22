@@ -2,8 +2,12 @@ import type { PeekStorage, PreviewRecord } from "./types";
 
 export const HISTORY_MAX_ENTRIES = 500;
 
-export function addHistoryRecord(storage: PeekStorage, record: PreviewRecord): PeekStorage {
-  if (!storage.settings.historyEnabled || (storage.license.status !== "pro" && storage.license.status !== "grace")) {
+export function addHistoryRecord(
+  storage: PeekStorage,
+  record: PreviewRecord,
+  entitled = storage.license.status === "pro" || storage.license.status === "grace",
+): PeekStorage {
+  if (!storage.settings.historyEnabled || !entitled) {
     return storage;
   }
   const history = [record, ...storage.history.filter((item) => item.normalizedUrl !== record.normalizedUrl)].slice(

@@ -37,7 +37,7 @@ Peek must detect the link under the pointer and place the preview beside it. The
 
 ### Host access
 
-The background service worker retrieves the destination page's public metadata for the preview. Requests are bounded and omit credentials. Exact license-Worker host access is used only for Pro activation and validation.
+The background service worker retrieves the destination page's public metadata for the preview. Requests are bounded and omit credentials. The same HTTPS host access also permits Pro activation and validation against the configured license Worker.
 
 ## Category
 

@@ -23,20 +23,23 @@ export async function copyUrl(url: string): Promise<void> {
   }
 }
 
-export async function togglePinned(record: PreviewRecord): Promise<{ pinned: boolean; records: PreviewRecord[] }> {
+export async function togglePinned(
+  record: PreviewRecord,
+  unlimited: boolean,
+): Promise<{ pinned: boolean; records: PreviewRecord[] }> {
   let pinned = false;
   const next = await updateStorage((storage) => {
     const exists = storage.pinned.some((item) => item.normalizedUrl === record.normalizedUrl);
     pinned = !exists;
     if (exists) return { ...storage, pinned: storage.pinned.filter((item) => item.normalizedUrl !== record.normalizedUrl) };
-    const next = storage.license.status === "pro" || storage.license.status === "grace" ? [...storage.pinned, record] : [record];
+    const next = unlimited ? [...storage.pinned, record] : [record];
     return { ...storage, pinned: next };
   });
   return { pinned, records: next.pinned };
 }
 
-export async function saveToHistory(record: PreviewRecord): Promise<void> {
-  await updateStorage((storage) => addHistoryRecord(storage, record));
+export async function saveToHistory(record: PreviewRecord, entitled: boolean): Promise<void> {
+  await updateStorage((storage) => addHistoryRecord(storage, record, entitled));
 }
 
 export async function removePinned(normalizedUrl: string): Promise<PreviewRecord[]> {

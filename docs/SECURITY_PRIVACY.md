@@ -27,7 +27,6 @@ Fetched URLs, redirects, response headers, HTML, metadata, images, runtime messa
 | `storage` | local settings, pin, history, cache, and signed license state |
 | `http://*/*`, `https://*/*` content access | detect hovered links on ordinary pages |
 | matching host access | fetch metadata from the link destination in the service worker |
-| exact Worker host | activate and validate Peek Pro |
 
 Peek does not request cookies, browsing history, bookmarks, downloads, webRequest, debugger, identity, or clipboard permissions.
 
