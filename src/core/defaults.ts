@@ -18,6 +18,8 @@ export const DEFAULT_SETTINGS: Readonly<PeekSettings> = Object.freeze({
 export const DEFAULT_LICENSE: Readonly<LicenseState> = Object.freeze({
   status: "free",
   instanceId: null,
+  licenseKey: null,
+  deviceId: null,
   receipt: null,
   checkedAt: null,
   expiresAt: null,

@@ -49,7 +49,10 @@
 
         <section class="panel panel--accent" id="pro" aria-labelledby="pro-title">
           <div class="pro-grid"><div><p class="eyebrow">One payment. No account.</p><h2 id="pro-title">Peek Pro — $5.99 lifetime</h2><p>Unlimited Peek Stack, searchable history, reader mode, customization, and local backup.</p></div><button class="button" id="upgrade" type="button">Unlock Peek Pro</button></div>
-          <div class="license-slot" id="license-slot"><strong>Free plan</strong><span>License activation will appear here after Creem is configured.</span></div>
+          <div class="license-slot" id="license-slot">
+            <div><strong id="license-status">Free plan</strong><span id="license-detail">Enter the key Creem emails after purchase.</span></div>
+            <div class="license-controls"><label class="sr-only" for="license-key">License key</label><input id="license-key" type="password" maxlength="200" autocomplete="off" placeholder="XXXXX-XXXXX-XXXXX" /><button class="button" id="activate-license" type="button">Activate</button><button class="button button--quiet" id="validate-license" type="button">Check</button><button class="button button--quiet" id="deactivate-license" type="button">Deactivate</button></div>
+          </div>
           <div class="data-actions"><button class="button button--quiet" id="export" type="button">Export data</button><label class="button button--quiet" for="import">Import data</label><input id="import" type="file" accept="application/json,.json" hidden /></div>
         </section>
       </div>

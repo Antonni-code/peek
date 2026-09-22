@@ -6,6 +6,7 @@ coverage/
 .env.*
 !.env.example
 .wrangler/
+worker/.dev.vars
 worker/dist/
 *.pem
 *.key

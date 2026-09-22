@@ -52,8 +52,9 @@ input[type="checkbox"] { accent-color: var(--peek-accent); height: 20px; width: 
 .record__actions button { background: var(--peek-paper); border: 1px solid var(--peek-line); border-radius: 8px; color: var(--peek-ink); min-height: 36px; padding: 0 10px; }
 .empty { color: var(--peek-ink-muted); font-size: 12px; line-height: 1.5; padding: 22px; text-align: center; }
 .pro-grid { align-items: center; display: grid; gap: 20px; grid-template-columns: minmax(0,1fr) auto; }
-.license-slot { align-items: center; background: var(--peek-paper); border: 1px solid var(--peek-line); border-radius: 11px; display: flex; gap: 10px; justify-content: space-between; margin-top: 18px; padding: 12px 14px; }
-.license-slot strong { font-size: 12px; }.license-slot span { color: var(--peek-ink-muted); font-size: 11px; text-align: right; }
+.license-slot { align-items: center; background: var(--peek-paper); border: 1px solid var(--peek-line); border-radius: 11px; display: flex; gap: 16px; justify-content: space-between; margin-top: 18px; padding: 12px 14px; }
+.license-slot strong, .license-slot span { display: block; }.license-slot strong { font-size: 12px; }.license-slot span { color: var(--peek-ink-muted); font-size: 11px; margin-top: 4px; }
+.license-controls { align-items: center; display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-end; }.license-controls input { background: var(--peek-paper-raised); border: 1px solid var(--peek-line); border-radius: 9px; color: var(--peek-ink); min-height: 42px; padding: 0 11px; width: min(230px, 100%); }
 .data-actions { display: flex; gap: 8px; margin-top: 12px; }
 dialog { background: var(--peek-paper-raised); border: 1px solid var(--peek-line); border-radius: 18px; box-shadow: var(--peek-shadow); color: var(--peek-ink); max-height: min(720px, calc(100vh - 40px)); max-width: 720px; padding: 0; width: calc(100vw - 40px); }
 dialog::backdrop { background: rgba(12,14,10,.62); backdrop-filter: blur(4px); }

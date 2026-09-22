@@ -1,10 +1,13 @@
-import type { PreviewResolution } from "./types";
+import type { LicenseState, PreviewResolution } from "./types";
 
 export type RuntimeRequest =
   | { type: "preview.resolve"; requestId: string; url: string }
   | { type: "preview.cancel"; requestId: string }
   | { type: "tab.open"; requestId: string; url: string; active: boolean }
-  | { type: "stack.toggle"; requestId: string };
+  | { type: "stack.toggle"; requestId: string }
+  | { type: "license.activate"; requestId: string; licenseKey: string }
+  | { type: "license.validate"; requestId: string }
+  | { type: "license.deactivate"; requestId: string };
 
 export type ContentRequest = { type: "ui.stack.toggle"; requestId: string };
 
@@ -13,6 +16,7 @@ export type RuntimeResponse =
   | { ok: true; data: { cancelled: true } }
   | { ok: true; data: { opened: true } }
   | { ok: true; data: { toggled: true } }
+  | { ok: true; data: { license: LicenseState } }
   | { ok: false; error: { code: "invalid_request" | "internal"; message: string } };
 
 function isBoundedString(value: unknown, max: number): value is string {
@@ -25,6 +29,8 @@ export function isRuntimeRequest(value: unknown): value is RuntimeRequest {
   if (!isBoundedString(request.requestId, 100)) return false;
   if (request.type === "preview.cancel") return true;
   if (request.type === "stack.toggle") return true;
+  if (request.type === "license.validate" || request.type === "license.deactivate") return true;
+  if (request.type === "license.activate") return isBoundedString(request.licenseKey, 200);
   if (request.type === "tab.open") {
     return isBoundedString(request.url, 8_192) && typeof request.active === "boolean";
   }

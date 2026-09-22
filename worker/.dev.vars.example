@@ -1,0 +1,2 @@
+CREEM_API_KEY=creem_test_REPLACE_ME
+RECEIPT_PRIVATE_JWK='{"kty":"EC","crv":"P-256","x":"REPLACE_ME","y":"REPLACE_ME","d":"REPLACE_ME"}'

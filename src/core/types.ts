@@ -18,6 +18,8 @@ export interface PeekSettings {
 export interface LicenseState {
   status: "free" | "pro" | "grace" | "invalid";
   instanceId: string | null;
+  licenseKey: string | null;
+  deviceId: string | null;
   receipt: string | null;
   checkedAt: number | null;
   expiresAt: number | null;

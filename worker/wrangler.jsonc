@@ -1,0 +1,12 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "peek-license-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-22",
+  "workers_dev": true,
+  "vars": {
+    "CREEM_PRODUCT_ID": "prod_REPLACE_ME",
+    "CREEM_MODE": "test",
+    "ALLOWED_EXTENSION_IDS": "REPLACE_WITH_UNPACKED_OR_PUBLISHED_EXTENSION_ID"
+  }
+}

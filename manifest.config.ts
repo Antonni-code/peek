@@ -33,7 +33,7 @@ export default defineManifest({
       all_frames: false
     }
   ],
-  host_permissions: ["http://*/*", "https://*/*"],
+  host_permissions: ["http://*/*", "https://*/*", "https://peek-license-api.example.workers.dev/*"],
   permissions: ["storage"],
   options_page: "src/options/index.html",
   commands: {

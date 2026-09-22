@@ -5,6 +5,8 @@ import { searchHistory } from "../core/history";
 import type { RuntimeRequest } from "../core/messages";
 import type { PeekSettings, PeekStorage, PreviewRecord } from "../core/types";
 import { readStorage, updateStorage } from "../platform/storage";
+import { isLicenseConfigured, PEEK_CONFIG } from "../config";
+import type { RuntimeResponse } from "../core/messages";
 
 let state: PeekStorage;
 let toastTimer: number | null = null;
@@ -33,7 +35,10 @@ function bindControls(): void {
   input<HTMLInputElement>("history-search").addEventListener("input", renderHistory);
   byId("clear-history").addEventListener("click", () => void clearHistory());
   byId("open-stack").addEventListener("click", () => void toggleStack());
-  byId("upgrade").addEventListener("click", () => showToast("Creem checkout is connected in the next phase."));
+  byId("upgrade").addEventListener("click", () => void openCheckout());
+  byId("activate-license").addEventListener("click", () => void runLicenseAction("activate"));
+  byId("validate-license").addEventListener("click", () => void runLicenseAction("validate"));
+  byId("deactivate-license").addEventListener("click", () => void runLicenseAction("deactivate"));
   byId("export").addEventListener("click", exportData);
   input<HTMLInputElement>("import").addEventListener("change", (event) => void importData(event));
   byId("close-reader").addEventListener("click", () => dialog().close());
@@ -54,8 +59,59 @@ function render(): void {
   byId("settings-lock").hidden = pro;
   (byId("export") as HTMLButtonElement).disabled = !pro;
   input<HTMLInputElement>("import").disabled = !pro;
+  renderLicense();
   renderPinned();
   renderHistory();
+}
+
+function renderLicense(): void {
+  const configured = isLicenseConfigured();
+  const pro = isPro();
+  text("license-status", pro ? (state.license.status === "grace" ? "Pro · offline grace" : "Peek Pro active") : state.license.status === "invalid" ? "License needs attention" : "Free plan");
+  text(
+    "license-detail",
+    configured
+      ? pro
+        ? `Verified on this device${state.license.expiresAt ? ` · refresh by ${new Date(state.license.expiresAt).toLocaleDateString()}` : ""}`
+        : "Enter the key Creem emails after purchase."
+      : "Add your Worker URL, Creem product ID, and receipt public key in src/config.ts before packaging.",
+  );
+  input<HTMLInputElement>("license-key").hidden = pro;
+  (byId("activate-license") as HTMLButtonElement).hidden = pro;
+  (byId("validate-license") as HTMLButtonElement).hidden = !pro;
+  (byId("deactivate-license") as HTMLButtonElement).hidden = !pro;
+  (byId("activate-license") as HTMLButtonElement).disabled = !configured;
+  (byId("upgrade") as HTMLButtonElement).disabled = !configured || !PEEK_CONFIG.checkoutUrl;
+}
+
+async function openCheckout(): Promise<void> {
+  if (!PEEK_CONFIG.checkoutUrl) return showToast("Add the Creem checkout URL in src/config.ts first.");
+  const request: RuntimeRequest = { type: "tab.open", requestId: crypto.randomUUID(), url: PEEK_CONFIG.checkoutUrl, active: true };
+  await chrome.runtime.sendMessage(request);
+}
+
+async function runLicenseAction(action: "activate" | "validate" | "deactivate"): Promise<void> {
+  const button = byId(`${action}-license`) as HTMLButtonElement;
+  button.disabled = true;
+  try {
+    const request: RuntimeRequest =
+      action === "activate"
+        ? { type: "license.activate", requestId: crypto.randomUUID(), licenseKey: input<HTMLInputElement>("license-key").value.trim() }
+        : action === "validate"
+          ? { type: "license.validate", requestId: crypto.randomUUID() }
+          : { type: "license.deactivate", requestId: crypto.randomUUID() };
+    const response: RuntimeResponse = await chrome.runtime.sendMessage(request);
+    if (!response.ok) throw new Error(response.error.message);
+    if (!("license" in response.data)) throw new Error("License service returned an invalid result.");
+    state = { ...state, license: response.data.license };
+    input<HTMLInputElement>("license-key").value = "";
+    render();
+    showToast(action === "deactivate" ? "License deactivated" : "License verified");
+  } catch (error) {
+    showToast(error instanceof Error ? error.message : "License request failed");
+  } finally {
+    button.disabled = false;
+  }
 }
 
 async function saveSetting<K extends keyof PeekSettings>(key: K, value: PeekSettings[K]): Promise<void> {
