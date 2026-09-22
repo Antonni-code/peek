@@ -33,6 +33,32 @@ export async function writeStorage(next: PeekStorage): Promise<void> {
   await chrome.storage.local.set({ [STORAGE_KEY]: next });
 }
 
+let updateQueue: Promise<void> = Promise.resolve();
+
+export function updateStorage(
+  updater: (current: PeekStorage) => PeekStorage | Promise<PeekStorage>,
+): Promise<PeekStorage> {
+  let resolveResult: (value: PeekStorage) => void;
+  let rejectResult: (reason?: unknown) => void;
+  const result = new Promise<PeekStorage>((resolve, reject) => {
+    resolveResult = resolve;
+    rejectResult = reject;
+  });
+
+  updateQueue = updateQueue
+    .then(async () => {
+      const current = await readStorage();
+      const next = await updater(current);
+      await writeStorage(next);
+      resolveResult(next);
+    })
+    .catch((error: unknown) => {
+      rejectResult(error);
+    });
+
+  return result;
+}
+
 export async function initializeStorage(): Promise<PeekStorage> {
   const next = await readStorage();
   await writeStorage(next);

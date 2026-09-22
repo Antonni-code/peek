@@ -41,11 +41,58 @@ export interface PreviewRecord {
   byteSize: number;
 }
 
+export type PreviewErrorCode =
+  | "unsupported_url"
+  | "blocked_url"
+  | "timeout"
+  | "cancelled"
+  | "network"
+  | "redirect"
+  | "too_large"
+  | "unsupported_content"
+  | "http_error"
+  | "parse_error";
+
+export type PreviewResolution =
+  | {
+      status: "ready";
+      record: PreviewRecord;
+      fromCache: boolean;
+    }
+  | {
+      status: "unavailable";
+      url: string;
+      normalizedUrl: string;
+      code: PreviewErrorCode;
+      message: string;
+      fromCache: boolean;
+    };
+
+export type PreviewCacheEntry =
+  | {
+      kind: "success";
+      normalizedUrl: string;
+      record: PreviewRecord;
+      expiresAt: number;
+      lastAccessedAt: number;
+      byteSize: number;
+    }
+  | {
+      kind: "failure";
+      normalizedUrl: string;
+      url: string;
+      code: Exclude<PreviewErrorCode, "cancelled">;
+      message: string;
+      expiresAt: number;
+      lastAccessedAt: number;
+      byteSize: number;
+    };
+
 export interface PeekStorage {
   schemaVersion: typeof STORAGE_SCHEMA_VERSION;
   settings: PeekSettings;
   license: LicenseState;
   pinned: PreviewRecord[];
   history: PreviewRecord[];
-  cache: PreviewRecord[];
+  cache: PreviewCacheEntry[];
 }
