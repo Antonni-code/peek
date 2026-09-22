@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Peek">
+  <rect width="128" height="128" rx="30" fill="#11130f"/>
+  <path d="M31 32h37c22 0 36 12 36 31S90 94 68 94H52v17H31V32Zm21 18v26h15c10 0 16-5 16-13s-6-13-16-13H52Z" fill="#c9ff3f"/>
+  <circle cx="91" cy="95" r="13" fill="#f8f7f1"/>
+  <circle cx="91" cy="95" r="5" fill="#11130f"/>
+</svg>

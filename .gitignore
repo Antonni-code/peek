@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+*.zip
+.env
+.env.*
+!.env.example
+.wrangler/
+worker/dist/
+*.pem
+*.key
