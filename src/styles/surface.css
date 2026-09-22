@@ -86,3 +86,13 @@ p {
   padding: 0 16px;
   text-decoration: none;
 }
+
+.popup-shell { width: 330px; }
+.popup-head { align-items: center; display: grid; gap: 10px; grid-template-columns: 36px minmax(0,1fr) auto; }
+.popup-head img { border-radius: 9px; height: 34px; width: 34px; }
+.popup-head .eyebrow { margin-bottom: 3px; }
+.popup-head h1 { font-size: 17px; }
+.mini-plan { background: var(--peek-ink); border-radius: 999px; color: var(--peek-paper); font-size: 9px; font-weight: 800; padding: 6px 8px; text-transform: uppercase; }
+.button--full { margin-top: 14px; width: 100%; }
+.text-button { background: transparent; border: 0; color: var(--peek-ink-muted); cursor: pointer; font-size: 11px; font-weight: 700; margin-top: 8px; min-height: 40px; width: 100%; }
+.text-button:hover { color: var(--peek-ink); }

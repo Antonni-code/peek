@@ -6,11 +6,56 @@
     <title>Peek settings</title>
   </head>
   <body>
-    <main class="shell">
-      <p class="eyebrow">Peek settings</p>
-      <h1>Preview on your terms.</h1>
-      <p>The complete settings, Peek Stack, history, and license controls arrive in later phases.</p>
+    <header class="topbar">
+      <a class="brand" href="#general" aria-label="Peek settings home"><img src="/icons/icon-32.png" alt="" /><span>Peek</span></a>
+      <span class="plan-badge" id="plan-badge">Free</span>
+    </header>
+    <main class="layout">
+      <nav class="side-nav" aria-label="Settings sections">
+        <a href="#general">General</a><a href="#stack">Peek Stack</a><a href="#history">History</a><a href="#pro">Peek Pro</a>
+      </nav>
+      <div class="content">
+        <section class="hero" aria-labelledby="page-title">
+          <p class="eyebrow">Local-first link preview</p>
+          <h1 id="page-title">Preview on your terms.</h1>
+          <p>Peek stays out of the way until you ask. Your previews, pins, and history remain on this device.</p>
+        </section>
+
+        <section class="panel" id="general" aria-labelledby="general-title">
+          <div class="section-head"><div><p class="eyebrow">Behavior</p><h2 id="general-title">General</h2></div></div>
+          <label class="setting-row"><span><strong>Enable Peek</strong><small>Hold Option or Alt over a link.</small></span><input id="enabled" type="checkbox" /></label>
+          <fieldset id="pro-settings" class="settings-group">
+            <legend><span>Pro controls</span><span class="lock-label" id="settings-lock">Peek Pro</span></legend>
+            <label class="field"><span>Activation</span><select id="activation-key"><option value="alt">Option / Alt + hover</option><option value="shift">Shift + hover</option><option value="none">Hover only</option></select></label>
+            <label class="field"><span>Card size</span><select id="card-size"><option value="compact">Compact</option><option value="comfortable">Comfortable</option><option value="wide">Wide</option></select></label>
+            <label class="field"><span>Preferred side</span><select id="card-side"><option value="auto">Automatic</option><option value="left">Left</option><option value="right">Right</option></select></label>
+            <label class="field"><span>Appearance</span><select id="appearance"><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+            <label class="field field--range"><span>Intent delay <output id="delay-output">320 ms</output></span><input id="intent-delay" type="range" min="120" max="1000" step="20" /></label>
+            <label class="setting-row setting-row--nested"><span><strong>Save local history</strong><small>Only while Pro is active.</small></span><input id="history-enabled" type="checkbox" /></label>
+          </fieldset>
+        </section>
+
+        <section class="panel" id="stack" aria-labelledby="stack-title">
+          <div class="section-head"><div><p class="eyebrow">Spatial workspace</p><h2 id="stack-title">Peek Stack</h2></div><button class="button button--quiet" id="open-stack" type="button">Open on current page</button></div>
+          <p class="section-copy">Free keeps one pin. Pro keeps an unlimited working stack without turning every comparison into another tab.</p>
+          <div class="record-list" id="pinned-list"></div>
+        </section>
+
+        <section class="panel" id="history" aria-labelledby="history-title">
+          <div class="section-head"><div><p class="eyebrow">Private and searchable</p><h2 id="history-title">History</h2></div><button class="button button--quiet" id="clear-history" type="button">Clear</button></div>
+          <label class="search"><span class="sr-only">Search history</span><input id="history-search" type="search" placeholder="Search title, website, or URL" /></label>
+          <div class="record-list" id="history-list"></div>
+        </section>
+
+        <section class="panel panel--accent" id="pro" aria-labelledby="pro-title">
+          <div class="pro-grid"><div><p class="eyebrow">One payment. No account.</p><h2 id="pro-title">Peek Pro — $5.99 lifetime</h2><p>Unlimited Peek Stack, searchable history, reader mode, customization, and local backup.</p></div><button class="button" id="upgrade" type="button">Unlock Peek Pro</button></div>
+          <div class="license-slot" id="license-slot"><strong>Free plan</strong><span>License activation will appear here after Creem is configured.</span></div>
+          <div class="data-actions"><button class="button button--quiet" id="export" type="button">Export data</button><label class="button button--quiet" for="import">Import data</label><input id="import" type="file" accept="application/json,.json" hidden /></div>
+        </section>
+      </div>
     </main>
+    <dialog id="reader-dialog"><div class="reader-head"><div><p class="eyebrow">Reader</p><h2 id="reader-title"></h2></div><button class="icon-button" id="close-reader" type="button" aria-label="Close reader">×</button></div><article id="reader-body"></article></dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
     <script type="module" src="./main.ts"></script>
   </body>
 </html>

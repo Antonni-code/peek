@@ -1,5 +1,5 @@
 import type { RuntimeRequest, RuntimeResponse } from "../core/messages";
-import type { PreviewResolution } from "../core/types";
+import type { ActivationKey, PreviewResolution } from "../core/types";
 
 export type PreviewUiState =
   | { status: "idle" }
@@ -9,6 +9,7 @@ export type PreviewUiState =
 
 export interface PreviewControllerOptions {
   delayMs: number;
+  activationKey: ActivationKey;
   onStateChange: (state: PreviewUiState) => void;
   isInteractiveTarget?: (target: EventTarget | null) => boolean;
   shouldRetain?: () => boolean;
@@ -19,7 +20,7 @@ function linkFromTarget(target: EventTarget | null): HTMLAnchorElement | null {
 }
 
 export class PreviewController {
-  private altPressed = false;
+  private modifierPressed = false;
   private candidate: HTMLAnchorElement | null = null;
   private timer: number | null = null;
   private requestId: string | null = null;
@@ -57,8 +58,8 @@ export class PreviewController {
   }
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
-    if (event.key === "Alt") {
-      this.altPressed = true;
+    if (this.isActivationEvent(event)) {
+      this.modifierPressed = true;
       const focused = linkFromTarget(document.activeElement);
       if (focused) this.schedule(focused);
     }
@@ -66,15 +67,15 @@ export class PreviewController {
   };
 
   private readonly onKeyUp = (event: KeyboardEvent): void => {
-    if (event.key === "Alt") {
-      this.altPressed = false;
+    if (this.isActivationEvent(event)) {
+      this.modifierPressed = false;
       this.reset(false);
     }
   };
 
   private readonly onPointerOver = (event: PointerEvent): void => {
     const link = linkFromTarget(event.target);
-    if (link && this.altPressed) this.schedule(link);
+    if (link && this.isActivationReady()) this.schedule(link);
   };
 
   private readonly onPointerOut = (event: PointerEvent): void => {
@@ -87,11 +88,11 @@ export class PreviewController {
 
   private readonly onFocusIn = (event: FocusEvent): void => {
     const link = linkFromTarget(event.target);
-    if (link && this.altPressed) this.schedule(link);
+    if (link && this.isActivationReady()) this.schedule(link);
   };
 
   private readonly onWindowBlur = (): void => {
-    this.altPressed = false;
+    this.modifierPressed = false;
     this.reset(false);
   };
 
@@ -108,7 +109,7 @@ export class PreviewController {
 
   private async resolve(link: HTMLAnchorElement): Promise<void> {
     const url = link.href;
-    if (!url || link !== this.candidate || !this.altPressed) return;
+    if (!url || link !== this.candidate || !this.isActivationReady()) return;
     const requestId = crypto.randomUUID();
     this.requestId = requestId;
     this.options.onStateChange({ status: "loading", requestId, url, anchor: link });
@@ -149,5 +150,16 @@ export class PreviewController {
     this.cancelRequest();
     this.candidate = null;
     this.options.onStateChange({ status: "idle" });
+  }
+
+  private isActivationReady(): boolean {
+    return this.options.activationKey === "none" || this.modifierPressed;
+  }
+
+  private isActivationEvent(event: KeyboardEvent): boolean {
+    return (
+      (this.options.activationKey === "alt" && event.key === "Alt") ||
+      (this.options.activationKey === "shift" && event.key === "Shift")
+    );
   }
 }

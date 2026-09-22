@@ -3,7 +3,7 @@ export const STORAGE_SCHEMA_VERSION = 1 as const;
 export type Appearance = "system" | "light" | "dark";
 export type CardSize = "compact" | "comfortable" | "wide";
 export type CardSide = "auto" | "left" | "right";
-export type ActivationKey = "alt";
+export type ActivationKey = "alt" | "shift" | "none";
 
 export interface PeekSettings {
   enabled: boolean;

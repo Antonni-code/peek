@@ -30,6 +30,26 @@
   }
 }
 
+:host([data-theme="light"]) {
+  --peek-ink: #11130f;
+  --peek-muted: #5f6457;
+  --peek-paper: #fbfaf5;
+  --peek-raised: #ffffff;
+  --peek-line: #d9dbd1;
+  --peek-danger: #9f261d;
+  --peek-shadow: 0 22px 60px rgba(18, 22, 13, 0.2), 0 3px 10px rgba(18, 22, 13, 0.1);
+}
+
+:host([data-theme="dark"]) {
+  --peek-ink: #f2f4eb;
+  --peek-muted: #aeb4a4;
+  --peek-paper: #141610;
+  --peek-raised: #1b1e16;
+  --peek-line: #3a3e33;
+  --peek-danger: #ffb4ab;
+  --peek-shadow: 0 24px 68px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.32);
+}
+
 .peek-lens {
   align-items: center;
   background: var(--peek-ink);
@@ -72,6 +92,9 @@
   transform-origin: top left;
   width: min(390px, calc(100vw - 24px));
 }
+
+:host([data-size="compact"]) .peek-card { width: min(330px, calc(100vw - 24px)); }
+:host([data-size="wide"]) .peek-card { width: min(480px, calc(100vw - 24px)); }
 
 .peek-card[data-visible="true"] {
   animation: peek-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
@@ -189,6 +212,17 @@
   -webkit-line-clamp: 4;
 }
 
+.peek-description[data-reader="true"] {
+  color: var(--peek-ink);
+  display: block;
+  font-size: 14px;
+  line-height: 1.65;
+  max-height: min(360px, calc(100vh - 190px));
+  overflow: auto;
+  white-space: pre-wrap;
+  -webkit-line-clamp: unset;
+}
+
 .peek-error {
   color: var(--peek-danger);
 }
@@ -249,6 +283,39 @@
 .peek-spacer {
   flex: 1;
 }
+
+.peek-stack {
+  background: var(--peek-paper);
+  border: 1px solid var(--peek-line);
+  border-radius: 15px;
+  box-shadow: var(--peek-shadow);
+  color: var(--peek-ink);
+  display: none;
+  max-height: calc(100vh - 24px);
+  overflow: hidden;
+  position: fixed;
+  right: 12px;
+  top: 12px;
+  width: min(296px, calc(100vw - 24px));
+}
+
+.peek-stack[data-visible="true"] { display: block; animation: peek-enter 180ms ease-out both; }
+.peek-stack-head { align-items: center; border-bottom: 1px solid var(--peek-line); display: flex; padding: 13px 14px; }
+.peek-stack-kicker { color: var(--peek-muted); font-size: 10px; font-weight: 800; letter-spacing: 0.13em; margin: 0; text-transform: uppercase; }
+.peek-stack-title { font-size: 16px; letter-spacing: -0.02em; margin: 2px 0 0; }
+.peek-stack-close { background: transparent; border: 0; border-radius: 8px; color: var(--peek-muted); cursor: pointer; font-size: 20px; height: 36px; margin-left: auto; width: 36px; }
+.peek-stack-close:hover { background: var(--peek-raised); color: var(--peek-ink); }
+.peek-stack-list { display: grid; gap: 6px; list-style: none; margin: 0; max-height: min(430px, calc(100vh - 150px)); overflow: auto; padding: 8px; }
+.peek-stack-item { align-items: center; background: var(--peek-raised); border: 1px solid var(--peek-line); border-radius: 11px; display: grid; grid-template-columns: minmax(0, 1fr) 36px; overflow: hidden; }
+.peek-stack-select { background: transparent; border: 0; color: inherit; cursor: pointer; min-width: 0; padding: 10px 11px; text-align: left; }
+.peek-stack-select:hover { background: color-mix(in srgb, var(--peek-accent) 13%, transparent); }
+.peek-stack-name { display: block; font-size: 12px; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.peek-stack-host { color: var(--peek-muted); display: block; font-size: 10px; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.peek-stack-remove { background: transparent; border: 0; border-left: 1px solid var(--peek-line); color: var(--peek-muted); cursor: pointer; height: 100%; min-height: 46px; }
+.peek-stack-remove:hover { color: var(--peek-danger); }
+.peek-stack-empty { color: var(--peek-muted); font-size: 12px; line-height: 1.5; padding: 18px 14px; text-align: center; }
+.peek-stack-foot { border-top: 1px solid var(--peek-line); color: var(--peek-muted); font-size: 10px; line-height: 1.45; padding: 10px 13px; }
+.peek-stack-upgrade { background: transparent; border: 0; color: var(--peek-ink); cursor: pointer; font: inherit; font-weight: 800; padding: 0; text-decoration: underline; text-decoration-color: var(--peek-accent); text-decoration-thickness: 3px; }
 
 .peek-skeleton {
   overflow: hidden;

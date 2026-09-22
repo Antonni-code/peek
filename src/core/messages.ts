@@ -3,12 +3,16 @@ import type { PreviewResolution } from "./types";
 export type RuntimeRequest =
   | { type: "preview.resolve"; requestId: string; url: string }
   | { type: "preview.cancel"; requestId: string }
-  | { type: "tab.open"; requestId: string; url: string; active: boolean };
+  | { type: "tab.open"; requestId: string; url: string; active: boolean }
+  | { type: "stack.toggle"; requestId: string };
+
+export type ContentRequest = { type: "ui.stack.toggle"; requestId: string };
 
 export type RuntimeResponse =
   | { ok: true; data: PreviewResolution }
   | { ok: true; data: { cancelled: true } }
   | { ok: true; data: { opened: true } }
+  | { ok: true; data: { toggled: true } }
   | { ok: false; error: { code: "invalid_request" | "internal"; message: string } };
 
 function isBoundedString(value: unknown, max: number): value is string {
@@ -20,8 +24,15 @@ export function isRuntimeRequest(value: unknown): value is RuntimeRequest {
   const request = value as Record<string, unknown>;
   if (!isBoundedString(request.requestId, 100)) return false;
   if (request.type === "preview.cancel") return true;
+  if (request.type === "stack.toggle") return true;
   if (request.type === "tab.open") {
     return isBoundedString(request.url, 8_192) && typeof request.active === "boolean";
   }
   return request.type === "preview.resolve" && isBoundedString(request.url, 8_192);
+}
+
+export function isContentRequest(value: unknown): value is ContentRequest {
+  if (typeof value !== "object" || value === null) return false;
+  const request = value as Record<string, unknown>;
+  return request.type === "ui.stack.toggle" && isBoundedString(request.requestId, 100);
 }

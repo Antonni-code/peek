@@ -1,16 +1,23 @@
 import styles from "./preview.css?inline";
 
-import type { PreviewRecord, PreviewResolution } from "../core/types";
+import type { CardSide, PeekSettings, PreviewRecord, PreviewResolution } from "../core/types";
 
 type SurfaceAction =
   | { type: "open"; url: string; active: boolean }
   | { type: "copy"; url: string }
   | { type: "pin"; record: PreviewRecord }
   | { type: "retry" }
-  | { type: "dismiss" };
+  | { type: "dismiss" }
+  | { type: "reader"; record: PreviewRecord }
+  | { type: "upgrade" }
+  | { type: "stack.select"; record: PreviewRecord }
+  | { type: "stack.remove"; record: PreviewRecord }
+  | { type: "stack.close" };
 
 export interface PeekSurfaceOptions {
   onAction: (action: SurfaceAction) => void;
+  settings: PeekSettings;
+  isPro: boolean;
 }
 
 const ICONS = {
@@ -19,6 +26,8 @@ const ICONS = {
   copy: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
   pin: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 4 6 6-3 1-4 4-1 5-3-3-3-3 5-1 4-4 1-3Z"/><path d="m5 19 4-4"/></svg>',
   retry: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>',
+  reader: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h14v14H5z"/><path d="M8 9h8M8 12h8M8 15h5"/></svg>',
+  back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
 };
 
 export class PeekSurface {
@@ -30,10 +39,16 @@ export class PeekSurface {
   private anchor: HTMLAnchorElement | null = null;
   private pointerInside = false;
   private pinned = false;
+  private stackOpen = false;
+  private readerMode = false;
+  private readonly cardSide: CardSide;
 
   constructor(private readonly options: PeekSurfaceOptions) {
     this.host = document.createElement("div");
     this.host.dataset.peekRoot = "true";
+    this.host.dataset.size = options.settings.cardSize;
+    this.host.dataset.theme = options.settings.appearance;
+    this.cardSide = options.settings.cardSide;
     this.shadow = this.host.attachShadow({ mode: "open" });
     this.shadow.innerHTML = `<style>${styles}</style>
       <div class="peek-lens" aria-hidden="true"></div>
@@ -55,7 +70,12 @@ export class PeekSurface {
             <div class="peek-actions"></div>
           </div>
         </div>
-      </section>`;
+      </section>
+      <aside class="peek-stack" aria-label="Peek Stack">
+        <header class="peek-stack-head"><div><p class="peek-stack-kicker">Pinned</p><h2 class="peek-stack-title">Peek Stack</h2></div><button class="peek-stack-close" type="button" aria-label="Close Peek Stack">×</button></header>
+        <ol class="peek-stack-list"></ol>
+        <div class="peek-stack-foot"></div>
+      </aside>`;
     const card = this.shadow.querySelector<HTMLElement>(".peek-card");
     const lens = this.shadow.querySelector<HTMLElement>(".peek-lens");
     if (!card || !lens) throw new Error("Peek surface failed to initialize.");
@@ -66,6 +86,7 @@ export class PeekSurface {
       this.pointerInside = false;
       if (!this.pinned) this.options.onAction({ type: "dismiss" });
     });
+    this.shadow.querySelector(".peek-stack-close")?.addEventListener("click", () => this.options.onAction({ type: "stack.close" }));
     document.documentElement.append(this.host);
   }
 
@@ -74,7 +95,7 @@ export class PeekSurface {
   }
 
   shouldRetain(): boolean {
-    return this.pointerInside || this.pinned;
+    return this.pointerInside || this.pinned || this.stackOpen;
   }
 
   setPinned(value: boolean): void {
@@ -99,6 +120,7 @@ export class PeekSurface {
   showLoading(anchor: HTMLAnchorElement, url: string): void {
     this.anchor = anchor;
     this.currentRecord = null;
+    this.readerMode = false;
     this.lens.dataset.visible = "false";
     this.setText(".peek-source-text", safeHostname(url));
     this.setText(".peek-title", "Looking through…");
@@ -114,6 +136,8 @@ export class PeekSurface {
     this.anchor = anchor;
     this.lens.dataset.visible = "false";
     this.setSkeleton(false);
+    this.readerMode = false;
+    this.setReaderState(false);
     if (result.status === "ready") {
       this.currentRecord = result.record;
       this.setText(".peek-source-text", result.record.siteName || result.record.hostname);
@@ -127,6 +151,7 @@ export class PeekSurface {
         { action: "open", label: "Open", icon: ICONS.open, primary: true },
         { action: "background", label: "Background", icon: ICONS.background },
         { action: "copy", label: "Copy", icon: ICONS.copy },
+        { action: this.options.isPro ? "reader" : "upgrade", label: this.options.isPro ? "Reader" : "Reader Pro", icon: ICONS.reader },
         { action: "pin", label: "Pin", icon: ICONS.pin },
       ]);
     } else {
@@ -158,6 +183,99 @@ export class PeekSurface {
     }
   }
 
+  showReader(record: PreviewRecord): void {
+    this.currentRecord = record;
+    this.readerMode = true;
+    this.setImage(null, null);
+    this.setText(".peek-source-text", record.siteName || record.hostname);
+    this.setText(".peek-title", record.title);
+    this.setText(".peek-description", record.readerText || record.excerpt || "No readable text was available for this page.");
+    this.setText(".peek-type", "Reader");
+    this.setReaderState(true);
+    this.setActions([
+      { action: "back", label: "Back", icon: ICONS.back },
+      { action: "open", label: "Open", icon: ICONS.open, primary: true },
+      { action: "copy", label: "Copy", icon: ICONS.copy },
+    ]);
+    this.showCard();
+  }
+
+  showStored(record: PreviewRecord): void {
+    this.anchor = null;
+    this.currentRecord = record;
+    this.lens.dataset.visible = "false";
+    this.setSkeleton(false);
+    if (!this.readerMode) {
+      this.setReaderState(false);
+      this.setText(".peek-source-text", record.siteName || record.hostname);
+      this.setText(".peek-title", record.title);
+      this.setText(".peek-description", record.description || record.excerpt || "No summary was provided for this page.");
+      this.setText(".peek-type", "Pinned");
+      this.setImage(record.imageUrl, record.title);
+      this.setFavicon(record.faviconUrl);
+      this.setActions([
+        { action: "open", label: "Open", icon: ICONS.open, primary: true },
+        { action: "copy", label: "Copy", icon: ICONS.copy },
+        { action: this.options.isPro ? "reader" : "upgrade", label: this.options.isPro ? "Reader" : "Reader Pro", icon: ICONS.reader },
+        { action: "pin", label: "Unpin", icon: ICONS.pin },
+      ]);
+      this.setPinned(true);
+    }
+    this.card.dataset.visible = "true";
+    requestAnimationFrame(() => this.positionStored());
+  }
+
+  renderStack(records: PreviewRecord[], open: boolean): void {
+    this.stackOpen = open;
+    const stack = this.shadow.querySelector<HTMLElement>(".peek-stack");
+    const list = this.shadow.querySelector<HTMLOListElement>(".peek-stack-list");
+    const foot = this.shadow.querySelector<HTMLElement>(".peek-stack-foot");
+    if (!stack || !list || !foot) return;
+    stack.dataset.visible = String(open);
+    list.replaceChildren();
+    if (records.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "peek-stack-empty";
+      empty.textContent = "Pin a preview and it will wait here without becoming another open tab.";
+      list.append(empty);
+    }
+    for (const record of records) {
+      const item = document.createElement("li");
+      item.className = "peek-stack-item";
+      const select = document.createElement("button");
+      select.type = "button";
+      select.className = "peek-stack-select";
+      const name = document.createElement("span");
+      name.className = "peek-stack-name";
+      name.textContent = record.title;
+      const host = document.createElement("span");
+      host.className = "peek-stack-host";
+      host.textContent = record.hostname;
+      select.append(name, host);
+      select.addEventListener("click", () => this.options.onAction({ type: "stack.select", record }));
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "peek-stack-remove";
+      remove.setAttribute("aria-label", `Remove ${record.title} from Peek Stack`);
+      remove.textContent = "×";
+      remove.addEventListener("click", () => this.options.onAction({ type: "stack.remove", record }));
+      item.append(select, remove);
+      list.append(item);
+    }
+    foot.replaceChildren();
+    if (this.options.isPro) {
+      foot.textContent = `${records.length} pinned ${records.length === 1 ? "preview" : "previews"} · Stored only on this device`;
+    } else {
+      foot.append("Free includes one pin. ");
+      const upgrade = document.createElement("button");
+      upgrade.className = "peek-stack-upgrade";
+      upgrade.type = "button";
+      upgrade.textContent = "Unlock unlimited";
+      upgrade.addEventListener("click", () => this.options.onAction({ type: "upgrade" }));
+      foot.append(upgrade);
+    }
+  }
+
   destroy(): void {
     this.host.remove();
   }
@@ -173,14 +291,27 @@ export class PeekSurface {
     const gap = 10;
     const anchor = this.anchor.getBoundingClientRect();
     const card = this.card.getBoundingClientRect();
-    let left = anchor.right + gap;
-    if (left + card.width > window.innerWidth - margin) left = anchor.left - card.width - gap;
+    let left = this.cardSide === "left" ? anchor.left - card.width - gap : anchor.right + gap;
+    if (this.cardSide === "auto" && left + card.width > window.innerWidth - margin) left = anchor.left - card.width - gap;
+    if (this.cardSide === "right" && left + card.width > window.innerWidth - margin) left = window.innerWidth - card.width - margin;
     left = Math.max(margin, Math.min(left, window.innerWidth - card.width - margin));
     let top = anchor.top;
     if (top + card.height > window.innerHeight - margin) top = window.innerHeight - card.height - margin;
     top = Math.max(margin, top);
     this.card.style.left = `${Math.round(left)}px`;
     this.card.style.top = `${Math.round(top)}px`;
+  }
+
+  private positionStored(): void {
+    const card = this.card.getBoundingClientRect();
+    const stackWidth = this.stackOpen ? 308 : 0;
+    this.card.style.left = `${Math.max(12, window.innerWidth - card.width - stackWidth - 18)}px`;
+    this.card.style.top = "12px";
+  }
+
+  private setReaderState(value: boolean): void {
+    const description = this.shadow.querySelector<HTMLElement>(".peek-description");
+    if (description) description.dataset.reader = String(value);
   }
 
   private setText(selector: string, text: string): void {
@@ -236,6 +367,18 @@ export class PeekSurface {
   private handleAction(action: string): void {
     const url = this.currentRecord?.url ?? this.anchor?.href;
     if (action === "retry") return this.options.onAction({ type: "retry" });
+    if (action === "upgrade") return this.options.onAction({ type: "upgrade" });
+    if (action === "reader" && this.currentRecord) return this.options.onAction({ type: "reader", record: this.currentRecord });
+    if (action === "back" && this.currentRecord) {
+      this.readerMode = false;
+      const record = this.currentRecord;
+      if (this.anchor) {
+        this.showResolution(this.anchor, { status: "ready", record, fromCache: true });
+        this.setPinned(this.pinned);
+        return;
+      }
+      return this.showStored(record);
+    }
     if (!url) return;
     if (action === "open") return this.options.onAction({ type: "open", url, active: true });
     if (action === "background") return this.options.onAction({ type: "open", url, active: false });

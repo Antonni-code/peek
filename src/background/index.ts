@@ -1,5 +1,5 @@
 import { initializeStorage } from "../platform/storage";
-import { isRuntimeRequest, type RuntimeResponse } from "../core/messages";
+import { isRuntimeRequest, type ContentRequest, type RuntimeResponse } from "../core/messages";
 import { cancelPreview, resolvePreview } from "./preview-service";
 import { normalizePreviewUrl } from "../core/url";
 
@@ -9,6 +9,17 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.runtime.onStartup.addListener(() => {
   void initializeStorage();
+});
+
+async function toggleActiveStack(): Promise<void> {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab?.id) throw new Error("No active web page.");
+  const request: ContentRequest = { type: "ui.stack.toggle", requestId: crypto.randomUUID() };
+  await chrome.tabs.sendMessage(tab.id, request);
+}
+
+chrome.commands.onCommand.addListener((command) => {
+  if (command === "toggle-peek-stack") void toggleActiveStack();
 });
 
 chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) => {
@@ -32,6 +43,13 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
       sendResponse({ ok: false, error: { code: "invalid_request", message: "Invalid link." } } satisfies RuntimeResponse);
     }
     return false;
+  }
+
+  if (message.type === "stack.toggle") {
+    void toggleActiveStack()
+      .then(() => sendResponse({ ok: true, data: { toggled: true } } satisfies RuntimeResponse))
+      .catch(() => sendResponse({ ok: false, error: { code: "internal", message: "Peek Stack is unavailable on this page." } } satisfies RuntimeResponse));
+    return true;
   }
 
   void resolvePreview(message.requestId, message.url)

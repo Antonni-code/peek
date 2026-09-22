@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { PeekSurface } from "../src/content/peek-surface";
+import { DEFAULT_SETTINGS } from "../src/core/defaults";
 import type { PreviewRecord } from "../src/core/types";
 
 const record: PreviewRecord = {
@@ -35,7 +36,7 @@ describe("PeekSurface", () => {
     const anchor = document.createElement("a");
     anchor.href = record.url;
     document.body.append(anchor);
-    const surface = new PeekSurface({ onAction: vi.fn() });
+    const surface = new PeekSurface({ onAction: vi.fn(), settings: { ...DEFAULT_SETTINGS }, isPro: false });
     surface.showResolution(anchor, { status: "ready", record: { ...record, title: "<img src=x onerror=alert(1)>" }, fromCache: false });
 
     const title = surface.host.shadowRoot?.querySelector(".peek-title");
@@ -48,7 +49,7 @@ describe("PeekSurface", () => {
     const anchor = document.createElement("a");
     anchor.href = record.url;
     document.body.append(anchor);
-    const surface = new PeekSurface({ onAction: vi.fn() });
+    const surface = new PeekSurface({ onAction: vi.fn(), settings: { ...DEFAULT_SETTINGS }, isPro: false });
     surface.showResolution(anchor, {
       status: "unavailable",
       url: record.url,
@@ -59,6 +60,16 @@ describe("PeekSurface", () => {
     });
     expect(surface.host.shadowRoot?.querySelector(".peek-title")?.textContent).toBe("Preview unavailable");
     expect(surface.host.shadowRoot?.querySelectorAll(".peek-action")).toHaveLength(3);
+    surface.destroy();
+  });
+
+  it("renders the edge stack with text-safe records", () => {
+    const surface = new PeekSurface({ onAction: vi.fn(), settings: { ...DEFAULT_SETTINGS }, isPro: true });
+    surface.renderStack([{ ...record, title: "<script>unsafe()</script>" }], true);
+    const stack = surface.host.shadowRoot?.querySelector(".peek-stack");
+    expect(stack?.getAttribute("data-visible")).toBe("true");
+    expect(stack?.querySelector(".peek-stack-name")?.textContent).toBe("<script>unsafe()</script>");
+    expect(stack?.querySelector("script")).toBeNull();
     surface.destroy();
   });
 });
