@@ -8,5 +8,6 @@ coverage/
 .wrangler/
 worker/.dev.vars
 worker/dist/
+worker/worker/
 *.pem
 *.key

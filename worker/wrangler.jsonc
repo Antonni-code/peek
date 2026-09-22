@@ -4,6 +4,16 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-09-22",
   "workers_dev": true,
+  "secrets": {
+    "required": ["CREEM_API_KEY", "RECEIPT_PRIVATE_JWK"]
+  },
+  "ratelimits": [
+    {
+      "name": "LICENSE_RATE_LIMITER",
+      "namespace_id": "2001",
+      "simple": { "limit": 10, "period": 60 }
+    }
+  ],
   "vars": {
     "CREEM_PRODUCT_ID": "prod_REPLACE_ME",
     "CREEM_MODE": "test",

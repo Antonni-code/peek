@@ -159,9 +159,15 @@ async function createReceipt(instanceId: string, env: Env, dependencies: WorkerD
   return { receipt: await signReceipt(payload, privateJwk, dependencies.cryptoImpl), expiresAt: expiresAt * 1_000 };
 }
 
-async function enforceRateLimit(request: Request, env: Env): Promise<void> {
+async function rateLimitKey(request: Request, licenseKey: string, cryptoImpl: Crypto): Promise<string> {
+  const material = new TextEncoder().encode(`${request.headers.get("origin") ?? "none"}:${new URL(request.url).pathname}:${licenseKey}`);
+  const digest = await cryptoImpl.subtle.digest("SHA-256", material);
+  return Array.from(new Uint8Array(digest).slice(0, 16), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function enforceRateLimit(request: Request, licenseKey: string, env: Env, cryptoImpl: Crypto): Promise<void> {
   if (!env.LICENSE_RATE_LIMITER) return;
-  const key = request.headers.get("cf-connecting-ip") ?? "unknown";
+  const key = await rateLimitKey(request, licenseKey, cryptoImpl);
   const result = await env.LICENSE_RATE_LIMITER.limit({ key });
   if (!result.success) throw new ApiError(429, "rate_limited", "Too many license attempts. Try again later.");
 }
@@ -176,10 +182,10 @@ export async function handleRequest(request: Request, env: Env, dependencies: Wo
   if (request.method !== "POST") return json({ ok: false, error: { code: "method_not_allowed", message: "Method not allowed.", requestId } }, 405, headers);
 
   try {
-    await enforceRateLimit(request, env);
     const path = new URL(request.url).pathname;
     const body = await readJson(request);
     const licenseKey = boundedString(body.licenseKey, "licenseKey", 200);
+    await enforceRateLimit(request, licenseKey, env, dependencies.cryptoImpl ?? crypto);
     const fetcher = dependencies.fetcher ?? fetch;
     if (path === "/v1/licenses/activate") {
       const instanceName = boundedString(body.instanceName, "instanceName", 100);
