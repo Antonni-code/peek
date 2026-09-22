@@ -1,0 +1,308 @@
+:host {
+  --peek-ink: #11130f;
+  --peek-muted: #5f6457;
+  --peek-paper: #fbfaf5;
+  --peek-raised: #ffffff;
+  --peek-line: #d9dbd1;
+  --peek-accent: #c9ff3f;
+  --peek-accent-ink: #182000;
+  --peek-danger: #9f261d;
+  --peek-shadow: 0 22px 60px rgba(18, 22, 13, 0.2), 0 3px 10px rgba(18, 22, 13, 0.1);
+  all: initial;
+  contain: style;
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  position: fixed;
+  inset: 0 auto auto 0;
+  z-index: 2147483647;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --peek-ink: #f2f4eb;
+    --peek-muted: #aeb4a4;
+    --peek-paper: #141610;
+    --peek-raised: #1b1e16;
+    --peek-line: #3a3e33;
+    --peek-accent: #c9ff3f;
+    --peek-accent-ink: #182000;
+    --peek-danger: #ffb4ab;
+    --peek-shadow: 0 24px 68px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.32);
+  }
+}
+
+.peek-lens {
+  align-items: center;
+  background: var(--peek-ink);
+  border: 1px solid color-mix(in srgb, var(--peek-accent) 65%, transparent);
+  border-radius: 999px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.18);
+  display: none;
+  height: 20px;
+  justify-content: center;
+  pointer-events: none;
+  position: fixed;
+  transform: translate3d(0, 0, 0);
+  width: 20px;
+}
+
+.peek-lens::after {
+  background: var(--peek-accent);
+  border-radius: 999px;
+  content: "";
+  height: 7px;
+  width: 7px;
+}
+
+.peek-lens[data-visible="true"] {
+  animation: peek-pop 160ms ease-out both;
+  display: flex;
+}
+
+.peek-card {
+  background: var(--peek-raised);
+  border: 1px solid var(--peek-line);
+  border-radius: 16px;
+  box-shadow: var(--peek-shadow);
+  color: var(--peek-ink);
+  display: none;
+  grid-template-columns: 42px minmax(0, 1fr);
+  max-height: min(520px, calc(100vh - 24px));
+  overflow: hidden;
+  position: fixed;
+  transform-origin: top left;
+  width: min(390px, calc(100vw - 24px));
+}
+
+.peek-card[data-visible="true"] {
+  animation: peek-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  display: grid;
+}
+
+.peek-rail {
+  align-items: center;
+  background: var(--peek-paper);
+  border-right: 1px solid var(--peek-line);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 13px 8px;
+}
+
+.peek-favicon {
+  background: var(--peek-raised);
+  border: 1px solid var(--peek-line);
+  border-radius: 8px;
+  height: 24px;
+  object-fit: contain;
+  padding: 3px;
+  width: 24px;
+}
+
+.peek-rail-line {
+  background: var(--peek-line);
+  flex: 1;
+  min-height: 24px;
+  width: 1px;
+}
+
+.peek-type {
+  color: var(--peek-muted);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+}
+
+.peek-main {
+  min-width: 0;
+  overflow: auto;
+}
+
+.peek-image-wrap {
+  aspect-ratio: 1.95 / 1;
+  background: var(--peek-paper);
+  border-bottom: 1px solid var(--peek-line);
+  display: none;
+  overflow: hidden;
+}
+
+.peek-image-wrap[data-visible="true"] {
+  display: block;
+}
+
+.peek-image {
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.peek-body {
+  padding: 16px 17px 14px;
+}
+
+.peek-source {
+  align-items: center;
+  color: var(--peek-muted);
+  display: flex;
+  font-size: 11px;
+  font-weight: 700;
+  gap: 7px;
+  letter-spacing: 0.02em;
+  margin: 0 0 8px;
+  min-width: 0;
+}
+
+.peek-source-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.peek-live-dot {
+  background: var(--peek-accent);
+  border: 1px solid var(--peek-accent-ink);
+  border-radius: 999px;
+  flex: 0 0 auto;
+  height: 7px;
+  width: 7px;
+}
+
+.peek-title {
+  color: var(--peek-ink);
+  font-size: 19px;
+  font-weight: 760;
+  letter-spacing: -0.025em;
+  line-height: 1.23;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.peek-description {
+  color: var(--peek-muted);
+  display: -webkit-box;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 9px 0 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.peek-error {
+  color: var(--peek-danger);
+}
+
+.peek-actions {
+  align-items: center;
+  border-top: 1px solid var(--peek-line);
+  display: flex;
+  gap: 6px;
+  margin-top: 15px;
+  padding-top: 11px;
+}
+
+.peek-action {
+  align-items: center;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  color: var(--peek-muted);
+  cursor: pointer;
+  display: inline-flex;
+  font: 700 11px/1 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  gap: 5px;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 9px;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.peek-action:hover {
+  background: var(--peek-paper);
+  border-color: var(--peek-line);
+  color: var(--peek-ink);
+}
+
+.peek-action:focus-visible {
+  outline: 3px solid var(--peek-accent);
+  outline-offset: 1px;
+}
+
+.peek-action[data-primary="true"],
+.peek-action[data-active="true"] {
+  background: var(--peek-accent);
+  border-color: var(--peek-accent-ink);
+  color: var(--peek-accent-ink);
+}
+
+.peek-action svg {
+  fill: none;
+  height: 14px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  width: 14px;
+}
+
+.peek-spacer {
+  flex: 1;
+}
+
+.peek-skeleton {
+  overflow: hidden;
+  position: relative;
+}
+
+.peek-skeleton::after {
+  animation: peek-shimmer 1.25s linear infinite;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--peek-accent) 28%, transparent), transparent);
+  content: "";
+  inset: 0;
+  position: absolute;
+  transform: translateX(-100%);
+}
+
+.peek-skeleton-line {
+  background: var(--peek-line);
+  border-radius: 999px;
+  height: 11px;
+  margin-top: 10px;
+}
+
+.peek-skeleton-line:first-child {
+  height: 18px;
+  margin-top: 0;
+  width: 78%;
+}
+
+.peek-skeleton-line:last-child {
+  width: 64%;
+}
+
+@keyframes peek-enter {
+  from { opacity: 0; transform: translateY(5px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes peek-pop {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes peek-shimmer {
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .peek-card[data-visible="true"],
+  .peek-lens[data-visible="true"],
+  .peek-skeleton::after {
+    animation: none;
+  }
+
+  .peek-action {
+    transition: none;
+  }
+}

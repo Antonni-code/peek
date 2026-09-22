@@ -3,12 +3,15 @@ import type { PreviewResolution } from "../core/types";
 
 export type PreviewUiState =
   | { status: "idle" }
+  | { status: "intent"; url: string; anchor: HTMLAnchorElement }
   | { status: "loading"; requestId: string; url: string; anchor: HTMLAnchorElement }
   | { status: "resolved"; requestId: string; url: string; anchor: HTMLAnchorElement; result: PreviewResolution };
 
 export interface PreviewControllerOptions {
   delayMs: number;
   onStateChange: (state: PreviewUiState) => void;
+  isInteractiveTarget?: (target: EventTarget | null) => boolean;
+  shouldRetain?: () => boolean;
 }
 
 function linkFromTarget(target: EventTarget | null): HTMLAnchorElement | null {
@@ -39,7 +42,18 @@ export class PreviewController {
     document.removeEventListener("pointerout", this.onPointerOut, true);
     document.removeEventListener("focusin", this.onFocusIn, true);
     window.removeEventListener("blur", this.onWindowBlur);
-    this.reset();
+    this.reset(true);
+  }
+
+  dismiss(force = false): void {
+    this.reset(force);
+  }
+
+  retry(): void {
+    if (!this.candidate) return;
+    const link = this.candidate;
+    this.cancelRequest();
+    void this.resolve(link);
   }
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
@@ -48,13 +62,13 @@ export class PreviewController {
       const focused = linkFromTarget(document.activeElement);
       if (focused) this.schedule(focused);
     }
-    if (event.key === "Escape") this.reset();
+    if (event.key === "Escape") this.reset(true);
   };
 
   private readonly onKeyUp = (event: KeyboardEvent): void => {
     if (event.key === "Alt") {
       this.altPressed = false;
-      this.reset();
+      this.reset(false);
     }
   };
 
@@ -67,7 +81,8 @@ export class PreviewController {
     const link = linkFromTarget(event.target);
     if (!link || link !== this.candidate) return;
     if (event.relatedTarget instanceof Node && link.contains(event.relatedTarget)) return;
-    this.reset();
+    if (this.options.isInteractiveTarget?.(event.relatedTarget)) return;
+    this.reset(false);
   };
 
   private readonly onFocusIn = (event: FocusEvent): void => {
@@ -77,13 +92,14 @@ export class PreviewController {
 
   private readonly onWindowBlur = (): void => {
     this.altPressed = false;
-    this.reset();
+    this.reset(false);
   };
 
   private schedule(link: HTMLAnchorElement): void {
     if (link === this.candidate && (this.timer !== null || this.requestId !== null)) return;
-    this.reset();
+    this.reset(true);
     this.candidate = link;
+    this.options.onStateChange({ status: "intent", url: link.href, anchor: link });
     this.timer = window.setTimeout(() => {
       this.timer = null;
       void this.resolve(link);
@@ -119,14 +135,18 @@ export class PreviewController {
     }
   }
 
-  private reset(): void {
+  private cancelRequest(): void {
+    if (!this.requestId) return;
+    const message: RuntimeRequest = { type: "preview.cancel", requestId: this.requestId };
+    void chrome.runtime.sendMessage(message);
+    this.requestId = null;
+  }
+
+  private reset(force: boolean): void {
+    if (!force && this.options.shouldRetain?.()) return;
     if (this.timer !== null) window.clearTimeout(this.timer);
     this.timer = null;
-    if (this.requestId) {
-      const message: RuntimeRequest = { type: "preview.cancel", requestId: this.requestId };
-      void chrome.runtime.sendMessage(message);
-    }
-    this.requestId = null;
+    this.cancelRequest();
     this.candidate = null;
     this.options.onStateChange({ status: "idle" });
   }
