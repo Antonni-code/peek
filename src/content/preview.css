@@ -1,16 +1,16 @@
 :host {
-  --peek-ink: #11130f;
-  --peek-muted: #5f6457;
-  --peek-paper: #fbfaf5;
+  --peek-ink: #1d1d1f;
+  --peek-muted: #68686d;
+  --peek-paper: #f5f5f7;
   --peek-raised: #ffffff;
-  --peek-line: #d9dbd1;
-  --peek-accent: #c9ff3f;
-  --peek-accent-ink: #182000;
+  --peek-line: #e2e2e7;
+  --peek-accent: #0071e3;
+  --peek-accent-ink: #ffffff;
   --peek-danger: #9f261d;
-  --peek-shadow: 0 22px 60px rgba(18, 22, 13, 0.2), 0 3px 10px rgba(18, 22, 13, 0.1);
+  --peek-shadow: 0 22px 60px rgba(29, 29, 31, 0.14), 0 3px 10px rgba(29, 29, 31, 0.05);
   all: initial;
   contain: style;
-  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   position: fixed;
   inset: 0 auto auto 0;
   z-index: 2147483647;
@@ -18,34 +18,34 @@
 
 @media (prefers-color-scheme: dark) {
   :host {
-    --peek-ink: #f2f4eb;
-    --peek-muted: #aeb4a4;
-    --peek-paper: #141610;
-    --peek-raised: #1b1e16;
-    --peek-line: #3a3e33;
-    --peek-accent: #c9ff3f;
-    --peek-accent-ink: #182000;
+    --peek-ink: #f5f5f7;
+    --peek-muted: #b0b0b7;
+    --peek-paper: #141416;
+    --peek-raised: #222225;
+    --peek-line: #3b3b41;
+    --peek-accent: #0071e3;
+    --peek-accent-ink: #ffffff;
     --peek-danger: #ffb4ab;
     --peek-shadow: 0 24px 68px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.32);
   }
 }
 
 :host([data-theme="light"]) {
-  --peek-ink: #11130f;
-  --peek-muted: #5f6457;
-  --peek-paper: #fbfaf5;
+  --peek-ink: #1d1d1f;
+  --peek-muted: #68686d;
+  --peek-paper: #f5f5f7;
   --peek-raised: #ffffff;
-  --peek-line: #d9dbd1;
+  --peek-line: #e2e2e7;
   --peek-danger: #9f261d;
-  --peek-shadow: 0 22px 60px rgba(18, 22, 13, 0.2), 0 3px 10px rgba(18, 22, 13, 0.1);
+  --peek-shadow: 0 22px 60px rgba(29, 29, 31, 0.14), 0 3px 10px rgba(29, 29, 31, 0.05);
 }
 
 :host([data-theme="dark"]) {
-  --peek-ink: #f2f4eb;
-  --peek-muted: #aeb4a4;
-  --peek-paper: #141610;
-  --peek-raised: #1b1e16;
-  --peek-line: #3a3e33;
+  --peek-ink: #f5f5f7;
+  --peek-muted: #b0b0b7;
+  --peek-paper: #141416;
+  --peek-raised: #222225;
+  --peek-line: #3b3b41;
   --peek-danger: #ffb4ab;
   --peek-shadow: 0 24px 68px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.32);
 }
@@ -81,11 +81,11 @@
 .peek-card {
   background: var(--peek-raised);
   border: 1px solid var(--peek-line);
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: var(--peek-shadow);
   color: var(--peek-ink);
   display: none;
-  grid-template-columns: 42px minmax(0, 1fr);
+  grid-template-columns: 36px minmax(0, 1fr);
   max-height: min(520px, calc(100vh - 24px));
   overflow: hidden;
   position: fixed;
@@ -108,7 +108,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 13px 8px;
+  padding: 14px 6px;
 }
 
 .peek-favicon {
@@ -131,7 +131,7 @@
 .peek-type {
   color: var(--peek-muted);
   font-size: 9px;
-  font-weight: 750;
+  font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   writing-mode: vertical-rl;
@@ -161,7 +161,7 @@
 }
 
 .peek-body {
-  padding: 16px 17px 14px;
+  padding: 20px 20px 16px;
 }
 
 .peek-source {
@@ -194,7 +194,7 @@
 .peek-title {
   color: var(--peek-ink);
   font-size: 19px;
-  font-weight: 760;
+  font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.23;
   margin: 0;
@@ -205,8 +205,8 @@
   color: var(--peek-muted);
   display: -webkit-box;
   font-size: 13px;
-  line-height: 1.5;
-  margin: 9px 0 0;
+  line-height: 1.65;
+  margin: 10px 0 0;
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
@@ -231,8 +231,9 @@
   align-items: center;
   border-top: 1px solid var(--peek-line);
   display: flex;
-  gap: 6px;
-  margin-top: 15px;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 18px;
   padding-top: 11px;
 }
 
@@ -244,11 +245,11 @@
   color: var(--peek-muted);
   cursor: pointer;
   display: inline-flex;
-  font: 700 11px/1 Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font: 500 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   gap: 5px;
   justify-content: center;
   min-height: 36px;
-  padding: 0 9px;
+  padding: 0 8px;
   transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
 }
 
@@ -266,7 +267,7 @@
 .peek-action[data-primary="true"],
 .peek-action[data-active="true"] {
   background: var(--peek-accent);
-  border-color: var(--peek-accent-ink);
+  border-color: transparent;
   color: var(--peek-accent-ink);
 }
 
@@ -285,9 +286,9 @@
 }
 
 .peek-stack {
-  background: var(--peek-paper);
+  background: var(--peek-raised);
   border: 1px solid var(--peek-line);
-  border-radius: 15px;
+  border-radius: 20px;
   box-shadow: var(--peek-shadow);
   color: var(--peek-ink);
   display: none;
@@ -301,21 +302,21 @@
 
 .peek-stack[data-visible="true"] { display: block; animation: peek-enter 180ms ease-out both; }
 .peek-stack-head { align-items: center; border-bottom: 1px solid var(--peek-line); display: flex; padding: 13px 14px; }
-.peek-stack-kicker { color: var(--peek-muted); font-size: 10px; font-weight: 800; letter-spacing: 0.13em; margin: 0; text-transform: uppercase; }
+.peek-stack-kicker { color: var(--peek-muted); font-size: 10px; font-weight: 600; letter-spacing: 0.13em; margin: 0; text-transform: uppercase; }
 .peek-stack-title { font-size: 16px; letter-spacing: -0.02em; margin: 2px 0 0; }
 .peek-stack-close { background: transparent; border: 0; border-radius: 8px; color: var(--peek-muted); cursor: pointer; font-size: 20px; height: 36px; margin-left: auto; width: 36px; }
 .peek-stack-close:hover { background: var(--peek-raised); color: var(--peek-ink); }
-.peek-stack-list { display: grid; gap: 6px; list-style: none; margin: 0; max-height: min(430px, calc(100vh - 150px)); overflow: auto; padding: 8px; }
-.peek-stack-item { align-items: center; background: var(--peek-raised); border: 1px solid var(--peek-line); border-radius: 11px; display: grid; grid-template-columns: minmax(0, 1fr) 36px; overflow: hidden; }
+.peek-stack-list { display: grid; gap: 0; list-style: none; margin: 0; max-height: min(430px, calc(100vh - 150px)); overflow: auto; padding: 8px; }
+.peek-stack-item { align-items: center; background: var(--peek-raised); border: 0; border-bottom: 1px solid var(--peek-line); border-radius: 0; display: grid; grid-template-columns: minmax(0, 1fr) 36px; overflow: hidden; }
 .peek-stack-select { background: transparent; border: 0; color: inherit; cursor: pointer; min-width: 0; padding: 10px 11px; text-align: left; }
 .peek-stack-select:hover { background: color-mix(in srgb, var(--peek-accent) 13%, transparent); }
-.peek-stack-name { display: block; font-size: 12px; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.peek-stack-name { display: block; font-size: 12px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .peek-stack-host { color: var(--peek-muted); display: block; font-size: 10px; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .peek-stack-remove { background: transparent; border: 0; border-left: 1px solid var(--peek-line); color: var(--peek-muted); cursor: pointer; height: 100%; min-height: 46px; }
 .peek-stack-remove:hover { color: var(--peek-danger); }
 .peek-stack-empty { color: var(--peek-muted); font-size: 12px; line-height: 1.5; padding: 18px 14px; text-align: center; }
 .peek-stack-foot { border-top: 1px solid var(--peek-line); color: var(--peek-muted); font-size: 10px; line-height: 1.45; padding: 10px 13px; }
-.peek-stack-upgrade { background: transparent; border: 0; color: var(--peek-ink); cursor: pointer; font: inherit; font-weight: 800; padding: 0; text-decoration: underline; text-decoration-color: var(--peek-accent); text-decoration-thickness: 3px; }
+.peek-stack-upgrade { background: transparent; border: 0; color: var(--peek-ink); cursor: pointer; font: inherit; font-weight: 600; padding: 0; text-decoration: underline; text-decoration-color: var(--peek-accent); text-decoration-thickness: 3px; }
 
 .peek-skeleton {
   overflow: hidden;
@@ -373,3 +374,6 @@
     transition: none;
   }
 }
+
+.peek-stack button:focus-visible { outline: 2px solid var(--peek-accent); outline-offset: -2px; }
+@media (prefers-reduced-motion: reduce) { .peek-stack[data-visible="true"] { animation: none; } }

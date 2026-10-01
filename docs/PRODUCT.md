@@ -17,7 +17,7 @@ Free preview count is never throttled. Monetization comes from organization and 
 
 ## Peek Pro
 
-Price: **$5.99 once, lifetime access**.
+Price: **$1.99 once, lifetime access**.
 
 - unlimited pinned previews in Peek Stack;
 - searchable local history, collected only while Pro is active and history is enabled;

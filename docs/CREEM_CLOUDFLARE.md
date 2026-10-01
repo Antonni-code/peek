@@ -7,7 +7,7 @@ Do this only after the extension works locally. Keep Test and Production complet
 Create **Peek Pro — Lifetime** with:
 
 - billing: one-time;
-- price: USD $5.99;
+- price: USD $1.99;
 - license keys: enabled;
 - activation limit: 3 devices;
 - description: “Unlimited Peek Stack, searchable local history, reader mode, customization, and local backup. One payment. No subscription.”
