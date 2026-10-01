@@ -16,7 +16,7 @@ Hold Option on Mac or Alt on Windows/Linux and hover a link. Peek opens a clean 
 
 Free includes unlimited previews, quick actions, automatic light/dark appearance, and one pinned preview.
 
-Peek Pro is a $5.99 lifetime purchase with unlimited Peek Stack, searchable local history, reader mode, customization, and local JSON backup. No account. No subscription.
+Peek Pro is a $1.99 lifetime purchase with unlimited Peek Stack, searchable local history, reader mode, customization, and local JSON backup. No account. No subscription.
 
 Privacy first:
 

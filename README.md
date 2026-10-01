@@ -8,7 +8,7 @@ Peek is a lightweight Chromium extension. Hold `Option` on macOS or `Alt` on Win
 
 Free is a complete preview tool: unlimited previews, safe metadata, quick actions, automatic appearance, and one pinned preview.
 
-Peek Pro is a **$5.99 lifetime purchase**: unlimited Peek Stack, searchable local history, reader mode, customization, and JSON backup. There are no accounts and no subscriptions.
+Peek Pro is a **$1.99 lifetime purchase**: unlimited Peek Stack, searchable local history, reader mode, customization, and JSON backup. There are no accounts and no subscriptions.
 
 ## Status
 
